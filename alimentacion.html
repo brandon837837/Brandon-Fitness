@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Brandon Fitness</title>
+<style>
+  :root{
+    --bg:#121213;
+    --panel:#1B1B1D;
+    --panel2:#202023;
+    --white:#F3F2EE;
+    --muted:#8C8B87;
+    --red:#D62828;
+    --line:#302F2E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--white);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
+  .wrap{max-width:880px;width:100%;text-align:center;}
+  .brand{
+    font-size:44px;font-weight:900;letter-spacing:-1px;
+    text-transform:uppercase;line-height:.9;margin:0 0 8px;
+    font-family:'Arial Narrow','Helvetica Neue',sans-serif;
+  }
+  .brand span{color:var(--red);}
+  .tagline{
+    color:var(--muted);font-size:14px;text-transform:uppercase;
+    letter-spacing:2px;margin-bottom:50px;
+  }
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:640px){.cards{grid-template-columns:1fr;}}
+  .card{
+    background:var(--panel);border:1px solid var(--line);
+    padding:36px 24px;text-decoration:none;color:var(--white);
+    transition:border-color .15s;display:block;
+  }
+  .card:hover{border-color:var(--red);}
+  .card .icon{font-size:32px;margin-bottom:16px;}
+  .card h2{
+    font-size:20px;text-transform:uppercase;letter-spacing:1px;
+    margin:0 0 10px;font-weight:800;
+  }
+  .card p{color:var(--muted);font-size:13.5px;line-height:1.6;margin:0 0 20px;}
+  .card .price{
+    font-size:13px;color:var(--red);font-weight:800;
+    text-transform:uppercase;letter-spacing:.5px;
+  }
+  .footer-note{margin-top:40px;color:var(--muted);font-size:11.5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="brand">BRANDON<span>FITNESS</span></h1>
+  <div class="tagline">Composición corporal · Salud metabólica</div>
+
+  <div class="cards">
+    <a class="card" href="nutricion.html">
+      <div class="icon">🥗</div>
+      <h2>Alimentación</h2>
+      <p>Calculá tus macros a tu medida cada 2 semanas, con más de 45 alimentos reales a elección tuya.</p>
+      <div class="price">$6.99 / mes</div>
+    </a>
+
+    <a class="card" href="entrenamiento.html">
+      <div class="icon">🏋️</div>
+      <h2>Entrenamiento</h2>
+      <p>Rutinas pregrabadas en 3 niveles —principiante, intermedio y avanzado— diseñadas para progresar de forma real.</p>
+      <div class="price">$6.99 / mes</div>
+    </a>
+  </div>
+
+  <div class="footer-note">Brandon Fitness · Culturista natural profesional</div>
+</div>
+</body>
+</html>
