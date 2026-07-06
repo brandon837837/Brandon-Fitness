@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Brandon Fitness — Calculadora</title>
+<style>
+  :root{
+    --bg:#121213;
+    --panel:#1B1B1D;
+    --panel2:#202023;
+    --white:#F3F2EE;
+    --muted:#8C8B87;
+    --red:#D62828;
+    --line:#302F2E;
+    --ok:#3F8F5F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--white);
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    padding:32px 16px;
+  }
+  .wrap{max-width:980px;margin:0 auto;}
+
+  .masthead{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:4px solid var(--red);
+    padding-bottom:16px;margin-bottom:30px;
+  }
+  .brand{
+    font-size:34px;font-weight:900;letter-spacing:-.5px;
+    text-transform:uppercase;line-height:.9;margin:0;
+    font-family:'Arial Narrow','Helvetica Neue',sans-serif;
+  }
+  .brand span{color:var(--red);}
+  .masthead .tag{
+    font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:2px;font-weight:600;
+  }
+
+  .grid{display:grid;grid-template-columns:1fr 1.25fr;gap:24px;}
+  @media(max-width:800px){.grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);padding:22px 22px 26px;}
+  .panel h2{
+    font-size:13px;text-transform:uppercase;letter-spacing:2px;font-weight:800;
+    color:var(--white);margin:0 0 18px;padding-bottom:10px;
+    border-bottom:2px solid var(--red);
+  }
+  label{
+    display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--muted);font-weight:700;margin:14px 0 5px;
+  }
+  input,select{
+    width:100%;padding:10px 10px;font-size:15px;font-family:inherit;
+    background:var(--bg);border:1px solid var(--line);color:var(--white);
+  }
+  input:focus,select:focus{outline:none;border-color:var(--red);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  button{
+    margin-top:22px;width:100%;padding:14px;
+    background:var(--red);color:var(--white);border:none;
+    text-transform:uppercase;font-weight:800;
+    letter-spacing:1.5px;font-size:13px;cursor:pointer;
+  }
+  button:hover{background:#B01F1F;}
+
+  .report{display:none;}
+  .report.show{display:block;}
+
+  .num-line{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:10px 0;border-bottom:1px solid var(--line);
+  }
+  .num-line .label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .num-line .val{font-size:19px;font-weight:800;}
+
+  .macro-bar{height:12px;width:100%;background:var(--bg);border:1px solid var(--line);margin-top:8px;display:flex;overflow:hidden;}
+  .macro-bar div{height:100%;}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;display:inline-block;border-radius:50%;}
+
+  .biomarker{margin-top:18px;padding:14px;background:var(--panel2);font-size:13px;line-height:1.5;display:none;border-left:5px solid var(--muted);}
+  .biomarker.riesgo-bajo{border-left-color:var(--ok);}
+  .biomarker.riesgo-medio{border-left-color:#D68A28;}
+  .biomarker.riesgo-alto{border-left-color:var(--red);}
+
+  .meals{margin-top:22px;}
+  .meal-block{border:1px solid var(--line);margin-bottom:14px;background:var(--panel2);}
+  .meal-header{
+    background:var(--red);color:var(--white);padding:9px 12px;
+    font-size:12px;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;
+  }
+  .meal-body{padding:14px 14px 6px;}
+  .food-select-row{margin-bottom:12px;}
+  .food-select-row label{margin:0 0 4px;}
+  .result-line{
+    display:flex;justify-content:space-between;
+    font-size:13px;padding:5px 0;color:var(--white);border-bottom:1px dotted var(--line);
+  }
+  .result-line .macro-name{color:var(--muted);}
+  .result-line .qty{font-weight:800;}
+
+  .note{font-size:11.5px;color:var(--muted);margin-top:16px;line-height:1.6;}
+  .sig{margin-top:10px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+
+  .freefoods{margin-top:26px;}
+  .freefoods h3{
+    font-size:12px;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;
+    color:var(--muted);margin:0 0 10px;
+  }
+  .chipbox{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;}
+  .chip{
+    background:var(--panel2);border:1px solid var(--line);
+    padding:5px 10px;font-size:12px;color:var(--white);
+  }
+  .chip.fruit{border-color:var(--red);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <h1 class="brand">BRANDON<span>FITNESS</span></h1>
+    <div class="tag">Reporte metabólico individual</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- FORM -->
+    <div class="panel">
+      <h2>01 · Tus datos</h2>
+
+      <div class="row2">
+        <div><label>Peso (kg)</label><input type="number" id="peso" value="78"></div>
+        <div><label>Estatura (cm)</label><input type="number" id="estatura" value="172"></div>
+      </div>
+
+      <div class="row2">
+        <div><label>Edad</label><input type="number" id="edad" value="30"></div>
+        <div>
+          <label>Género</label>
+          <select id="genero">
+            <option value="hombre">Hombre</option>
+            <option value="mujer">Mujer</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Circunferencia de cintura (cm) — opcional</label>
+      <input type="number" id="cintura" placeholder="Ej: 92">
+
+      <label>Nivel de actividad</label>
+      <select id="actividad">
+        <option value="1.2">Sedentario (poco o nada de ejercicio)</option>
+        <option value="1.375">Ligero (1-3 días/semana)</option>
+        <option value="1.55" selected>Moderado (3-5 días/semana)</option>
+        <option value="1.725">Activo (6-7 días/semana)</option>
+        <option value="1.9">Muy activo (entreno intenso diario)</option>
+      </select>
+
+      <label>Objetivo</label>
+      <select id="objetivo">
+        <option value="definicion" selected>Definición (bajar grasa)</option>
+        <option value="mantenimiento">Mantenimiento</option>
+        <option value="volumen">Volumen (ganar músculo)</option>
+      </select>
+
+      <label>Comidas al día</label>
+      <select id="comidas">
+        <option value="3">3 comidas</option>
+        <option value="4" selected>4 comidas</option>
+        <option value="5">5 comidas</option>
+      </select>
+
+      <button onclick="generarPlan()">Generar reporte</button>
+    </div>
+
+    <!-- REPORT -->
+    <div class="panel report" id="report">
+      <h2>02 · Tus totales diarios</h2>
+
+      <div class="num-line"><span class="label">Metabolismo basal (BMR)</span><span class="val" id="r-bmr">—</span></div>
+      <div class="num-line"><span class="label">Gasto total diario (TDEE)</span><span class="val" id="r-tdee">—</span></div>
+      <div class="num-line"><span class="label">Calorías objetivo</span><span class="val" id="r-cal">—</span></div>
+
+      <div style="margin-top:16px;">
+        <div class="num-line"><span class="label">Proteína</span><span class="val" id="r-prot">—</span></div>
+        <div class="num-line"><span class="label">Grasa</span><span class="val" id="r-grasa">—</span></div>
+        <div class="num-line"><span class="label">Carbohidratos</span><span class="val" id="r-carb">—</span></div>
+      </div>
+      <div class="macro-bar" id="macrobar"></div>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--red);"></i>Proteína</span>
+        <span><i class="dot" style="background:#D68A28;"></i>Grasa</span>
+        <span><i class="dot" style="background:var(--white);"></i>Carbohidratos</span>
+      </div>
+
+      <div class="biomarker" id="biomarker"></div>
+
+      <h2 style="margin-top:26px;">03 · Elegí tus alimentos por comida</h2>
+      <div class="meals" id="meals"></div>
+
+      <div class="freefoods">
+        <h3>Vegetales libres (sin restricción)</h3>
+        <div class="chipbox" id="vegbox"></div>
+        <h3>Frutas recomendadas (1-2 porciones al día)</h3>
+        <div class="chipbox" id="frutbox"></div>
+      </div>
+
+      <div class="note" id="reevaluar"></div>
+      <div class="sig">Recalculá en 14 días con tu peso actualizado →</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Bases de datos de alimentos. unit=100 -> valor de macro por 100g. unit=1 -> valor de macro por unidad/porción (huevo, cucharada, scoop).
+const FOODS = {
+  carb: [
+    {id:'arroz', name:'Arroz cocido', unit:100, unitLabel:'g', macro:28},
+    {id:'panintegral', name:'Pan integral', unit:100, unitLabel:'g', macro:41},
+    {id:'pannormal', name:'Pan blanco / normal', unit:100, unitLabel:'g', macro:49},
+    {id:'yuca', name:'Yuca cocida', unit:100, unitLabel:'g', macro:38},
+    {id:'platano', name:'Plátano maduro', unit:100, unitLabel:'g', macro:31},
+    {id:'papa', name:'Papa cocida', unit:100, unitLabel:'g', macro:17},
+    {id:'camote', name:'Camote cocido', unit:100, unitLabel:'g', macro:20},
+    {id:'avena', name:'Avena cruda', unit:100, unitLabel:'g', macro:66},
+    {id:'quinoa', name:'Quinoa cocida', unit:100, unitLabel:'g', macro:21},
+    {id:'pastaintegral', name:'Pasta integral cocida', unit:100, unitLabel:'g', macro:25},
+    {id:'pastanormal', name:'Pasta normal cocida', unit:100, unitLabel:'g', macro:31},
+    {id:'tortillamaiz', name:'Tortilla de maíz', unit:1, unitLabel:'unidad(es)', macro:12},
+    {id:'tortillaharina', name:'Tortilla de harina', unit:1, unitLabel:'unidad(es)', macro:18},
+    {id:'elote', name:'Elote / maíz cocido', unit:100, unitLabel:'g', macro:19},
+    {id:'frijolneg', name:'Frijoles negros cocidos', unit:100, unitLabel:'g', macro:24},
+    {id:'lentejas', name:'Lentejas cocidas', unit:100, unitLabel:'g', macro:20},
+    {id:'garbanzos', name:'Garbanzos cocidos', unit:100, unitLabel:'g', macro:27},
+    {id:'nestum', name:'Nestum cereal de arroz', unit:100, unitLabel:'g', macro:80},
+    {id:'galletaarroz', name:'Galleta de arroz', unit:1, unitLabel:'unidad(es)', macro:7},
+    {id:'cerealintegral', name:'Cereal integral sin azúcar añadida', unit:100, unitLabel:'g', macro:70},
+    {id:'arepa', name:'Arepa', unit:100, unitLabel:'g', macro:29},
+    {id:'galletamaria', name:'Galleta María', unit:1, unitLabel:'unidad(es)', macro:5.5},
+    {id:'granola', name:'Granola sin azúcar añadida', unit:100, unitLabel:'g', macro:55},
+  ],
+  protein: [
+    {id:'pollo', name:'Pechuga de pollo', unit:100, unitLabel:'g', macro:31},
+    {id:'carneres', name:'Carne de res magra', unit:100, unitLabel:'g', macro:26},
+    {id:'atun', name:'Atún en agua', unit:100, unitLabel:'g', macro:26},
+    {id:'sardinas', name:'Sardinas en lata', unit:100, unitLabel:'g', macro:25},
+    {id:'tilapia', name:'Tilapia / pescado blanco', unit:100, unitLabel:'g', macro:26},
+    {id:'salmon', name:'Salmón', unit:100, unitLabel:'g', macro:25},
+    {id:'camarones', name:'Camarones', unit:100, unitLabel:'g', macro:24},
+    {id:'lomocerdo', name:'Lomo de cerdo', unit:100, unitLabel:'g', macro:27},
+    {id:'pavo', name:'Pavo molido', unit:100, unitLabel:'g', macro:27},
+    {id:'mortadelapavo', name:'Mortadela de pavo light', unit:100, unitLabel:'g', macro:15},
+    {id:'clara', name:'Claras de huevo', unit:100, unitLabel:'g', macro:11},
+    {id:'huevo', name:'Huevo entero', unit:1, unitLabel:'unidad(es)', macro:6.3},
+    {id:'cottage', name:'Queso cottage bajo en grasa', unit:100, unitLabel:'g', macro:11},
+    {id:'quesofresco', name:'Queso fresco', unit:100, unitLabel:'g', macro:14},
+    {id:'yogurgriego', name:'Yogur griego natural', unit:100, unitLabel:'g', macro:10},
+    {id:'whey', name:'Proteína en polvo (whey)', unit:1, unitLabel:'scoop(s) de 30g', macro:24},
+  ],
+  fat: [
+    {id:'oliva', name:'Aceite de oliva', unit:1, unitLabel:'cucharada(s) de 15ml', macro:13.5},
+    {id:'aguacate', name:'Aguacate', unit:100, unitLabel:'g', macro:15},
+    {id:'aceiteaguacate', name:'Aceite de aguacate', unit:1, unitLabel:'cucharada(s) de 15ml', macro:13.5},
+    {id:'mani', name:'Mantequilla de maní', unit:1, unitLabel:'cucharada(s) de 15g', macro:8},
+    {id:'almendras', name:'Almendras', unit:100, unitLabel:'g', macro:49},
+    {id:'nueces', name:'Nueces', unit:100, unitLabel:'g', macro:65},
+    {id:'macadamia', name:'Nueces de macadamia', unit:100, unitLabel:'g', macro:76},
+    {id:'maranon', name:'Marañón / anacardo', unit:100, unitLabel:'g', macro:44},
+    {id:'pistachos', name:'Pistachos', unit:100, unitLabel:'g', macro:45},
+    {id:'chia', name:'Semillas de chía', unit:100, unitLabel:'g', macro:31},
+    {id:'girasol', name:'Semillas de girasol', unit:100, unitLabel:'g', macro:51},
+    {id:'coco', name:'Aceite de coco', unit:1, unitLabel:'cucharada(s) de 15ml', macro:13.6},
+    {id:'ghee', name:'Mantequilla clarificada (ghee)', unit:1, unitLabel:'cucharada(s) de 15g', macro:14},
+  ],
+  vegetal: [
+    'Zanahoria','Espárragos','Brócoli','Lechuga','Cilantro','Apio','Remolacha',
+    'Tomate','Zucchini / calabacín','Repollo blanco','Repollo morado','Kale',
+    'Arúgula','Vainicas / ejotes','Pepino','Espinaca','Coliflor','Champiñones',
+    'Chile dulce / pimiento','Rábano','Berenjena','Chayote','Alcachofa','Puerro',
+    'Cebolla','Perejil','Hongos portobello','Nabo'
+  ],
+  fruta: [
+    'Limón','Manzana','Banano','Fresas','Arándanos','Naranja','Mandarina',
+    'Sandía','Melón','Piña','Uvas','Kiwi','Pera','Mango','Papaya','Maracuyá',
+    'Toronja','Durazno','Ciruela','Moras','Higos','Granada','Guayaba'
+  ]
+};
+
+let ESTADO = null;
+
+function opcionesFood(lista, seleccionado){
+  return lista.map(f =>
+    `<option value="${f.id}" ${f.id===seleccionado?'selected':''}>${f.name}</option>`
+  ).join('');
+}
+
+function generarPlan(){
+  const peso = parseFloat(document.getElementById('peso').value);
+  const estatura = parseFloat(document.getElementById('estatura').value);
+  const edad = parseFloat(document.getElementById('edad').value);
+  const genero = document.getElementById('genero').value;
+  const actividad = parseFloat(document.getElementById('actividad').value);
+  const objetivo = document.getElementById('objetivo').value;
+  const numComidas = parseInt(document.getElementById('comidas').value);
+  const cintura = parseFloat(document.getElementById('cintura').value);
+
+  let bmr = genero === 'hombre'
+    ? 10*peso + 6.25*estatura - 5*edad + 5
+    : 10*peso + 6.25*estatura - 5*edad - 161;
+
+  const tdee = bmr * actividad;
+  let calorias = tdee;
+  if(objetivo === 'definicion') calorias = tdee * 0.80;
+  if(objetivo === 'volumen') calorias = tdee * 1.12;
+
+  const proteinaG = Math.round(peso * 2.2);
+  const grasaG = Math.round(peso * 0.9);
+  const calProt = proteinaG * 4;
+  const calGrasa = grasaG * 9;
+  const calCarb = Math.max(calorias - calProt - calGrasa, 0);
+  const carbG = Math.round(calCarb / 4);
+
+  document.getElementById('r-bmr').textContent = Math.round(bmr) + ' kcal';
+  document.getElementById('r-tdee').textContent = Math.round(tdee) + ' kcal';
+  document.getElementById('r-cal').textContent = Math.round(calorias) + ' kcal';
+  document.getElementById('r-prot').textContent = proteinaG + ' g';
+  document.getElementById('r-grasa').textContent = grasaG + ' g';
+  document.getElementById('r-carb').textContent = carbG + ' g';
+
+  const totalCal = calProt + calGrasa + calCarb;
+  document.getElementById('macrobar').innerHTML =
+    `<div style="width:${(calProt/totalCal*100)}%;background:var(--red);"></div>` +
+    `<div style="width:${(calGrasa/totalCal*100)}%;background:#D68A28;"></div>` +
+    `<div style="width:${(calCarb/totalCal*100)}%;background:var(--white);"></div>`;
+
+  const bm = document.getElementById('biomarker');
+  if(!isNaN(cintura) && cintura > 0){
+    let riesgo, clase;
+    if(genero === 'hombre'){
+      if(cintura < 94){ riesgo='Riesgo metabólico bajo'; clase='riesgo-bajo'; }
+      else if(cintura <= 102){ riesgo='Riesgo metabólico aumentado'; clase='riesgo-medio'; }
+      else { riesgo='Riesgo metabólico alto'; clase='riesgo-alto'; }
+    } else {
+      if(cintura < 80){ riesgo='Riesgo metabólico bajo'; clase='riesgo-bajo'; }
+      else if(cintura <= 88){ riesgo='Riesgo metabólico aumentado'; clase='riesgo-medio'; }
+      else { riesgo='Riesgo metabólico alto'; clase='riesgo-alto'; }
+    }
+    bm.className = 'biomarker show ' + clase;
+    bm.style.display = 'block';
+    bm.innerHTML = `<strong>${riesgo}</strong><br>Cintura de ${cintura} cm (referencia OMS). Esta medida es un indicador de salud metabólica, más allá de lo estético.`;
+  } else {
+    bm.style.display = 'none';
+  }
+
+  ESTADO = {
+    numComidas,
+    protPorComida: proteinaG / numComidas,
+    grasaPorComida: grasaG / numComidas,
+    carbPorComida: carbG / numComidas
+  };
+
+  let html = '';
+  for(let i=1;i<=numComidas;i++){
+    html += `
+    <div class="meal-block" data-meal="${i}">
+      <div class="meal-header">Comida ${i}</div>
+      <div class="meal-body">
+        <div class="food-select-row">
+          <label>Proteína</label>
+          <select class="sel-protein" onchange="actualizarComidas()">${opcionesFood(FOODS.protein, FOODS.protein[0].id)}</select>
+        </div>
+        <div class="food-select-row">
+          <label>Grasa</label>
+          <select class="sel-fat" onchange="actualizarComidas()">${opcionesFood(FOODS.fat, FOODS.fat[0].id)}</select>
+        </div>
+        <div class="food-select-row">
+          <label>Carbohidrato</label>
+          <select class="sel-carb" onchange="actualizarComidas()">${opcionesFood(FOODS.carb, FOODS.carb[0].id)}</select>
+        </div>
+        <div class="resultados"></div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('meals').innerHTML = html;
+
+  document.getElementById('vegbox').innerHTML = FOODS.vegetal.map(v => `<span class="chip">${v}</span>`).join('');
+  document.getElementById('frutbox').innerHTML = FOODS.fruta.map(f => `<span class="chip fruit">${f}</span>`).join('');
+
+  document.getElementById('reevaluar').textContent =
+    '* Valores calculados con la fórmula Mifflin-St Jeor y tablas nutricionales estándar. Son una guía basada en fórmulas de nutrición deportiva, no un diagnóstico médico. Ante condiciones de salud existentes, consultá a un profesional.';
+
+  document.getElementById('report').classList.add('show');
+  actualizarComidas();
+}
+
+function buscarFood(lista, id){
+  return lista.find(f => f.id === id);
+}
+
+function cantidadNecesaria(food, gramosObjetivoMacro){
+  const cantidad = (gramosObjetivoMacro / food.macro) * food.unit;
+  return Math.round(cantidad * 10) / 10;
+}
+
+function actualizarComidas(){
+  if(!ESTADO) return;
+  const bloques = document.querySelectorAll('.meal-block');
+  bloques.forEach(bloque => {
+    const protId = bloque.querySelector('.sel-protein').value;
+    const fatId = bloque.querySelector('.sel-fat').value;
+    const carbId = bloque.querySelector('.sel-carb').value;
+
+    const protFood = buscarFood(FOODS.protein, protId);
+    const fatFood = buscarFood(FOODS.fat, fatId);
+    const carbFood = buscarFood(FOODS.carb, carbId);
+
+    const cantProt = cantidadNecesaria(protFood, ESTADO.protPorComida);
+    const cantFat = cantidadNecesaria(fatFood, ESTADO.grasaPorComida);
+    const cantCarb = cantidadNecesaria(carbFood, ESTADO.carbPorComida);
+
+    bloque.querySelector('.resultados').innerHTML = `
+      <div class="result-line"><span class="macro-name">${protFood.name}</span><span class="qty">${cantProt} ${protFood.unitLabel}</span></div>
+      <div class="result-line"><span class="macro-name">${fatFood.name}</span><span class="qty">${cantFat} ${fatFood.unitLabel}</span></div>
+      <div class="result-line"><span class="macro-name">${carbFood.name}</span><span class="qty">${cantCarb} ${carbFood.unitLabel}</span></div>
+    `;
+  });
+}
+</script>
+</body>
+</html>
